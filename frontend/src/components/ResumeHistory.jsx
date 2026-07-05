@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api/axios";
 import { toast } from "react-toastify";
 
 function ResumeHistory() {
@@ -15,8 +15,8 @@ function ResumeHistory() {
         try {
             const token = localStorage.getItem("token");
 
-            const res = await axios.get(
-                `http://localhost:5000/api/resumes?search=${search}&minScore=${minScore}`,
+            const res = await api.get(
+                `/api/resumes?search=${search}&minScore=${minScore}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -28,6 +28,7 @@ function ResumeHistory() {
 
         } catch (error) {
             console.error(error);
+            toast.error("Failed to load history");
         }
     };
 
@@ -36,8 +37,8 @@ function ResumeHistory() {
 
             const token = localStorage.getItem("token");
 
-            await axios.delete(
-                `http://localhost:5000/api/resumes/${id}`,
+            await api.delete(
+                `/api/resumes/${id}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -51,6 +52,8 @@ function ResumeHistory() {
 
         } catch (error) {
 
+            console.error(error);
+
             toast.error("Delete Failed");
 
         }
@@ -61,8 +64,8 @@ function ResumeHistory() {
 
             const token = localStorage.getItem("token");
 
-            await axios.patch(
-                `http://localhost:5000/api/resumes/favorite/${id}`,
+            await api.patch(
+                `/api/resumes/favorite/${id}`,
                 {},
                 {
                     headers: {
@@ -74,6 +77,8 @@ function ResumeHistory() {
             fetchHistory();
 
         } catch (error) {
+
+            console.error(error);
 
             toast.error("Favorite Update Failed");
 
@@ -155,9 +160,7 @@ function ResumeHistory() {
                                 </p>
 
                                 <p className="text-slate-500 mt-4 text-sm">
-                                    {new Date(
-                                        resume.createdAt
-                                    ).toLocaleString()}
+                                    {new Date(resume.createdAt).toLocaleString()}
                                 </p>
 
                             </div>
@@ -165,24 +168,14 @@ function ResumeHistory() {
                             <div className="flex flex-col gap-3">
 
                                 <button
-                                    onClick={() =>
-                                        toggleFavorite(
-                                            resume._id
-                                        )
-                                    }
+                                    onClick={() => toggleFavorite(resume._id)}
                                     className="text-3xl"
                                 >
-                                    {resume.favorite
-                                        ? "⭐"
-                                        : "☆"}
+                                    {resume.favorite ? "⭐" : "☆"}
                                 </button>
 
                                 <button
-                                    onClick={() =>
-                                        deleteResume(
-                                            resume._id
-                                        )
-                                    }
+                                    onClick={() => deleteResume(resume._id)}
                                     className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-white"
                                 >
                                     Delete

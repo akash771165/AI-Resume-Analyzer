@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api/axios";
 import {
     LineChart,
     Line,
@@ -23,8 +23,8 @@ function ATSChart() {
 
             const token = localStorage.getItem("token");
 
-            const res = await axios.get(
-                "http://localhost:5000/api/resumes",
+            const res = await api.get(
+                "/api/resumes",
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,

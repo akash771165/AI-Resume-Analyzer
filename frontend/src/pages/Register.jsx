@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import api from "../api/axios";
 import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthContext";
 
@@ -29,8 +29,8 @@ function Register() {
         try {
             setLoading(true);
 
-            const res = await axios.post(
-                "http://localhost:5000/api/auth/register",
+            const res = await api.post(
+                "/api/auth/register",
                 form
             );
 
@@ -50,7 +50,9 @@ function Register() {
             );
 
         } finally {
+
             setLoading(false);
+
         }
     };
 

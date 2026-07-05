@@ -1,6 +1,6 @@
 import ResultCard from "./ResultCard";
 import DropZone from "./DropZone";
-import axios from "axios";
+import api from "../api/axios";
 import { useState, useRef } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -37,8 +37,8 @@ function UploadCard() {
             setLoading(true);
             setUploadProgress(0);
 
-            const response = await axios.post(
-                "http://localhost:5000/api/upload",
+            const response = await api.post(
+                "/api/upload",
                 formData,
                 {
                     headers: {

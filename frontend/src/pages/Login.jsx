@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import api from "../api/axios";
 import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthContext";
 
@@ -28,8 +28,8 @@ function Login() {
         try {
             setLoading(true);
 
-            const res = await axios.post(
-                "http://localhost:5000/api/auth/login",
+            const res = await api.post(
+                "/api/auth/login",
                 form
             );
 
@@ -49,7 +49,9 @@ function Login() {
             );
 
         } finally {
+
             setLoading(false);
+
         }
     };
 

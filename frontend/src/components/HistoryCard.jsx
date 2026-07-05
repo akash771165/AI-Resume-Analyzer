@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "../api/axios";
 import { toast } from "react-toastify";
 
 function HistoryCard({ resume, fetchHistory }) {
@@ -9,8 +9,15 @@ function HistoryCard({ resume, fetchHistory }) {
 
         try {
 
-            await axios.delete(
-                `http://localhost:5000/api/resumes/${resume._id}`
+            const token = localStorage.getItem("token");
+
+            await api.delete(
+                `/api/resumes/${resume._id}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
             );
 
             toast.success("Resume Deleted");
