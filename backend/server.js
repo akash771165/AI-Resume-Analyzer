@@ -1,6 +1,10 @@
 const express = require("express");
 const cors = require("cors");
-require("dotenv").config();
+const dotenv = require("dotenv");
+const fs = require("fs");
+const path = require("path");
+
+dotenv.config();
 
 const connectDB = require("./config/db");
 connectDB();
@@ -11,7 +15,21 @@ const authRoute = require("./routes/authRoute");
 
 const app = express();
 
-app.use(cors());
+// Create uploads folder automatically
+const uploadDir = path.join(__dirname, "uploads");
+
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+    console.log("✅ uploads folder created");
+}
+
+app.use(
+    cors({
+        origin: true,
+        credentials: true,
+    })
+);
+
 app.use(express.json());
 
 app.use("/api/upload", uploadRoute);

@@ -1,15 +1,18 @@
 const { analyzeResume: analyzeWithGemini } = require("../services/geminiService");
-const fs = require("fs");
 const pdfParse = require("pdf-parse");
 const Resume = require("../models/Resume");
 
 const analyzeResume = async (req, res) => {
     try {
-        const filePath = req.file.path;
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: "Resume file is required",
+            });
+        }
 
-        const dataBuffer = fs.readFileSync(filePath);
-
-        const pdfData = await pdfParse(dataBuffer);
+        // Read PDF directly from memory
+        const pdfData = await pdfParse(req.file.buffer);
 
         const jobDescription = req.body.jobDescription || "";
 
@@ -41,26 +44,15 @@ const analyzeResume = async (req, res) => {
 
         await Resume.create({
             user: req.user,
-
             fileName: req.file.originalname,
-
             atsScore: parsedResponse.atsScore,
-
             jobMatch: parsedResponse.jobMatch,
-
             summary: parsedResponse.summary,
-
             strengths: parsedResponse.strengths,
-
             matchedSkills: parsedResponse.matchedSkills,
-
             missingSkills: parsedResponse.missingSkills,
-
-            improvementSuggestions:
-                parsedResponse.improvementSuggestions,
-
-            interviewQuestions:
-                parsedResponse.interviewQuestions,
+            improvementSuggestions: parsedResponse.improvementSuggestions,
+            interviewQuestions: parsedResponse.interviewQuestions,
         });
 
         res.json({
@@ -70,11 +62,11 @@ const analyzeResume = async (req, res) => {
 
     } catch (error) {
 
-        console.error(error);
+        console.error("Analyze Resume Error:", error);
 
         res.status(500).json({
             success: false,
-            message: "Server Error",
+            message: error.message,
         });
 
     }
