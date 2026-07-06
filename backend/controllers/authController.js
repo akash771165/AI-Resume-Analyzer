@@ -2,17 +2,46 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-// REGISTER
+// Generate JWT
+const generateToken = (id) => {
+    return jwt.sign(
+        { id },
+        process.env.JWT_SECRET,
+        {
+            expiresIn: "7d",
+        }
+    );
+};
+
+// ================= REGISTER =================
 const register = async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        let { name, email, password } = req.body;
+
+        // Validation
+        if (!name || !email || !password) {
+            return res.status(400).json({
+                success: false,
+                message: "All fields are required",
+            });
+        }
+
+        name = name.trim();
+        email = email.trim().toLowerCase();
+
+        if (password.length < 6) {
+            return res.status(400).json({
+                success: false,
+                message: "Password must be at least 6 characters",
+            });
+        }
 
         const existingUser = await User.findOne({ email });
 
         if (existingUser) {
             return res.status(400).json({
                 success: false,
-                message: "User already exists",
+                message: "Email already registered",
             });
         }
 
@@ -24,19 +53,10 @@ const register = async (req, res) => {
             password: hashedPassword,
         });
 
-        const token = jwt.sign(
-            {
-                id: user._id,
-            },
-            process.env.JWT_SECRET,
-            {
-                expiresIn: "7d",
-            }
-        );
-
-        res.status(201).json({
+        return res.status(201).json({
             success: true,
-            token,
+            message: "Registration Successful",
+            token: generateToken(user._id),
             user: {
                 id: user._id,
                 name: user.name,
@@ -45,26 +65,37 @@ const register = async (req, res) => {
         });
 
     } catch (error) {
+
+        console.error("REGISTER ERROR");
         console.error(error);
 
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
-            message: "Server Error",
+            message: error.message,
         });
     }
 };
 
-// LOGIN
+// ================= LOGIN =================
 const login = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        let { email, password } = req.body;
+
+        if (!email || !password) {
+            return res.status(400).json({
+                success: false,
+                message: "Email and Password are required",
+            });
+        }
+
+        email = email.trim().toLowerCase();
 
         const user = await User.findOne({ email });
 
         if (!user) {
             return res.status(400).json({
                 success: false,
-                message: "Invalid Credentials",
+                message: "Invalid Email or Password",
             });
         }
 
@@ -76,23 +107,14 @@ const login = async (req, res) => {
         if (!match) {
             return res.status(400).json({
                 success: false,
-                message: "Invalid Credentials",
+                message: "Invalid Email or Password",
             });
         }
 
-        const token = jwt.sign(
-            {
-                id: user._id,
-            },
-            process.env.JWT_SECRET,
-            {
-                expiresIn: "7d",
-            }
-        );
-
-        res.json({
+        return res.status(200).json({
             success: true,
-            token,
+            message: "Login Successful",
+            token: generateToken(user._id),
             user: {
                 id: user._id,
                 name: user.name,
@@ -101,11 +123,13 @@ const login = async (req, res) => {
         });
 
     } catch (error) {
+
+        console.error("LOGIN ERROR");
         console.error(error);
 
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
-            message: "Server Error",
+            message: error.message,
         });
     }
 };
